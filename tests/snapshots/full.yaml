@@ -1,0 +1,445 @@
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: home-assistant-default
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: home-assistant
+      app.kubernetes.io/instance: test-release
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: istio-system
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: shared-platform-gateway
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: monitoring
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: prometheus
+      ports:
+      - port: 15008
+        protocol: TCP
+  egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    - ports:
+      - port: 443
+        protocol: TCP
+      to:
+      - ipBlock:
+          cidr: 0.0.0.0/0
+          except:
+          - 10.42.0.0/16
+          - 10.43.0.0/16
+          - 192.168.0.0/16
+    - ports:
+      - port: 15008
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: istio-system
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: home-assistant-discovery
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: home-assistant
+      app.kubernetes.io/instance: test-release
+  policyTypes:
+    - Egress
+  egress:
+    - ports:
+      - port: 5353
+        protocol: UDP
+      to:
+      - ipBlock:
+          cidr: 224.0.0.251/32
+    - ports:
+      - port: 1900
+        protocol: UDP
+      to:
+      - ipBlock:
+          cidr: 239.255.255.250/32
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: home-assistant
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: serviceaccount
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+  annotations:
+    app.kubernetes.io/managed-by: argocd
+    description: Home Assistant service account
+automountServiceAccountToken: false
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: home-assistant-config
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: pvc
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-assistant-http
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: service-http
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+  annotations:
+    description: Home Assistant HTTP service
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8123
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/instance: test-release
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-assistant
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: deployment
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: home-assistant
+      app.kubernetes.io/instance: test-release
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: deployment
+        app.kubernetes.io/instance: test-release
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: home-assistant
+        app.kubernetes.io/part-of: home-automation
+        app.kubernetes.io/version: 2026.2.1
+        helm.sh/chart: home-assistant-0.0.2
+        logging.kubernetes.io/component: home-automation
+        logging.kubernetes.io/service: home-assistant
+    spec:
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        runAsNonRoot: true
+      serviceAccountName: home-assistant
+      dnsPolicy: ClusterFirst
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      containers:
+        - name: home-assistant
+          image: ghcr.io/home-assistant/home-assistant:2026.2.1@sha256:db9b3d73ef5ff04c972aa929c48c85842346546a4fa3fa0af83ea878742baea6
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8123
+              protocol: TCP
+          env:
+            - name: TZ
+              value: UTC
+          volumeMounts:
+            - mountPath: /config
+              name: config
+          resources:
+            limits:
+              cpu: 2
+              memory: 2Gi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          livenessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+          startupProbe:
+            failureThreshold: 30
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsGroup: 1000
+            runAsNonRoot: true
+            runAsUser: 1000
+            seccompProfile:
+              type: RuntimeDefault
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: home-assistant-config
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: home-assistant-ingress
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: authorization-policy
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: home-assistant
+      app.kubernetes.io/instance: test-release
+  action: ALLOW
+  rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/istio-system/sa/shared-platform-gateway-istio
+      to:
+      - operation:
+          ports:
+          - "8123"
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: home-assistant-prometheus
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: authorization-policy
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: home-assistant
+      app.kubernetes.io/instance: test-release
+  action: ALLOW
+  rules:
+    - from:
+      - source:
+          principals:
+          - cluster.local/ns/monitoring/sa/prometheus-kube-prometheus-prometheus
+      to:
+      - operation:
+          ports:
+          - "8123"
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: home-assistant
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: destination-rule
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+spec:
+  host: home-assistant-http
+  trafficPolicy:
+    connectionPool:
+      http:
+        http1MaxPendingRequests: 10
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 2
+      tcp:
+        maxConnections: 100
+    outlierDetection:
+      baseEjectionTime: 30s
+      consecutive5xxErrors: 5
+      interval: 30s
+      maxEjectionPercent: 50
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: home-assistant-route
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: http-route
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+spec:
+  parentRefs:
+    - name: shared-platform-gateway
+      namespace: istio-system
+      kind: Gateway
+      group: gateway.networking.k8s.io
+      sectionName: https
+  hostnames:
+    - home-assistant-k8s.orhayoun.com
+  rules:
+    -
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: home-assistant-http
+          port: 8123
+          weight: 100
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: home-assistant-http-redirect
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: http-route
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.2
+spec:
+  parentRefs:
+    - name: shared-platform-gateway
+      namespace: istio-system
+      kind: Gateway
+      group: gateway.networking.k8s.io
+      sectionName: http
+  hostnames:
+    - home-assistant-k8s.orhayoun.com
+  rules:
+    -
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - requestRedirect:
+            scheme: https
+            statusCode: 301
+          type: RequestRedirect

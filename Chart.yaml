@@ -1,0 +1,16 @@
+apiVersion: v2
+name: home-assistant
+description: A Helm chart for Home Assistant using lib-chart
+type: application
+version: 0.0.2
+appVersion: "2026.2.1"
+keywords:
+  - home-assistant
+  - home-automation
+dependencies:
+  - name: lib-chart
+    version: "0.0.7"
+    repository: "oci://ghcr.io/orhayoun-eevee"
+maintainers:
+  - name: Home Assistant Team
+home: https://www.home-assistant.io/

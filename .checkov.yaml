@@ -1,0 +1,2 @@
+skip-check:
+  - CKV_K8S_40 # Home Assistant runs with explicit UID/GID to keep /config volume ownership predictable.

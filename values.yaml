@@ -1,0 +1,382 @@
+# Default values for home-assistant
+# Converted to lib-chart pattern (nested under app-chart dependency)
+
+# ----------------------------------------------------------------------------
+# Global Configuration
+# ----------------------------------------------------------------------------
+global:
+  name: home-assistant
+  namespace: home-automation
+  chart:
+    appVersion: 2026.2.1
+  labels:
+    partOf: home-automation
+
+# ----------------------------------------------------------------------------
+# Service Configuration
+# ----------------------------------------------------------------------------
+network:
+  enabled: true
+  services:
+    enabled: true
+    items:
+      http:
+        enabled: true
+        type: ClusterIP
+        ports:
+          http:
+            port: 8123
+            targetPort: http
+            protocol: TCP
+        annotations:
+          description: "Home Assistant HTTP service"
+      # Optional metrics service for Home Assistant's built-in /api/prometheus endpoint.
+      metrics:
+        enabled: false
+        type: ClusterIP
+        ports:
+          metrics:
+            port: 8123
+            targetPort: http
+            protocol: TCP
+        annotations:
+          description: "Home Assistant Prometheus endpoint service"
+
+  # ----------------------------------------------------------------------------
+  # Feature: Networking (Gateway API & Security)
+  # ----------------------------------------------------------------------------
+  httpRoute:
+    enabled: true
+    port: 8123
+    host: home-assistant-k8s.orhayoun.com
+    gateway:
+      name: shared-platform-gateway
+      namespace: istio-system
+    routes:
+      - name: route
+        enabled: true
+        listener:
+          sectionName: https
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            backendRefs:
+              - name: home-assistant-http
+                port: 8123
+                weight: 100
+                group: ""
+                kind: Service
+      - name: http-redirect
+        enabled: true
+        listener:
+          sectionName: http
+        rules:
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /
+            filters:
+              - type: RequestRedirect
+                requestRedirect:
+                  scheme: https
+                  statusCode: 301
+
+  networkPolicy:
+    enabled: true
+    items:
+      default:
+        enabled: true
+        policyTypes:
+          - Ingress
+          - Egress
+        ingress:
+          - from:
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: istio-system
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: shared-platform-gateway
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: monitoring
+                podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: prometheus
+            ports:
+              - protocol: TCP
+                port: 15008
+        egress:
+          # DNS access
+          - to:
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: kube-system
+                podSelector:
+                  matchLabels:
+                    k8s-app: kube-dns
+            ports:
+              - protocol: UDP
+                port: 53
+              - protocol: TCP
+                port: 53
+
+          # HTTPS egress for integrations/cloud APIs
+          - to:
+              - ipBlock:
+                  cidr: "0.0.0.0/0"
+                  except:
+                    - "10.42.0.0/16"
+                    - "10.43.0.0/16"
+                    - "192.168.0.0/16"
+            ports:
+              - protocol: TCP
+                port: 443
+
+          # HBONE mesh traffic
+          - to:
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: istio-system
+            ports:
+              - protocol: TCP
+                port: 15008
+
+      # Best-effort in-cluster discovery policy.
+      # NOTE: Some Home Assistant discovery integrations may still require host networking.
+      discovery:
+        enabled: true
+        policyTypes:
+          - Egress
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: home-assistant
+        egress:
+          # mDNS
+          - to:
+              - ipBlock:
+                  cidr: "224.0.0.251/32"
+            ports:
+              - protocol: UDP
+                port: 5353
+          # SSDP
+          - to:
+              - ipBlock:
+                  cidr: "239.255.255.250/32"
+            ports:
+              - protocol: UDP
+                port: 1900
+
+  istio:
+    enabled: true
+    authorizationPolicy:
+      enabled: true
+      items:
+        ingress:
+          enabled: true
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - "cluster.local/ns/istio-system/sa/shared-platform-gateway-istio"
+              to:
+                - operation:
+                    ports: ["8123"]
+        prometheus:
+          enabled: true
+          action: ALLOW
+          rules:
+            - from:
+                - source:
+                    principals:
+                      - "cluster.local/ns/monitoring/sa/prometheus-kube-prometheus-prometheus"
+              to:
+                - operation:
+                    ports: ["8123"]
+    destinationRule:
+      enabled: true
+      host: home-assistant-http
+      trafficPolicy:
+        connectionPool:
+          tcp:
+            maxConnections: 100
+          http:
+            http1MaxPendingRequests: 10
+            http2MaxRequests: 100
+            maxRequestsPerConnection: 2
+        outlierDetection:
+          consecutive5xxErrors: 5
+          interval: 30s
+          baseEjectionTime: 30s
+          maxEjectionPercent: 50
+
+# ----------------------------------------------------------------------------
+# Deployment Configuration
+# ----------------------------------------------------------------------------
+deployment:
+  replicas: 1
+  strategy:
+    type: Recreate
+  revisionHistoryLimit: 3
+  terminationGracePeriodSeconds: 60
+  # Set true for host-network mode (required by some discovery integrations).
+  # When enabled and dnsPolicy is omitted, lib-chart will render ClusterFirstWithHostNet.
+  # hostNetwork: false
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: false
+  automountServiceAccountToken: false
+
+  podLabels:
+    logging.kubernetes.io/component: home-automation
+    logging.kubernetes.io/service: home-assistant
+
+  podSecurityContext:
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+    runAsNonRoot: true
+
+  containers:
+    home-assistant:
+      enabled: true
+      image:
+        repository: ghcr.io/home-assistant/home-assistant
+        tag: "2026.2.1@sha256:db9b3d73ef5ff04c972aa929c48c85842346546a4fa3fa0af83ea878742baea6"
+        pullPolicy: Always
+      ports:
+        - name: http
+          containerPort: 8123
+          protocol: TCP
+      env:
+        - name: TZ
+          value: UTC
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+            - ALL
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+        limits:
+          cpu: 2
+          memory: 2Gi
+      livenessProbe:
+        httpGet:
+          path: /
+          port: http
+          scheme: HTTP
+        initialDelaySeconds: 120
+        periodSeconds: 30
+        timeoutSeconds: 5
+        failureThreshold: 6
+      readinessProbe:
+        httpGet:
+          path: /
+          port: http
+          scheme: HTTP
+        initialDelaySeconds: 30
+        periodSeconds: 15
+        timeoutSeconds: 5
+        failureThreshold: 6
+      startupProbe:
+        httpGet:
+          path: /
+          port: http
+          scheme: HTTP
+        initialDelaySeconds: 20
+        periodSeconds: 10
+        timeoutSeconds: 5
+        failureThreshold: 30
+      volumeMounts:
+        - name: config
+          mountPath: /config
+
+# ----------------------------------------------------------------------------
+# Feature: Persistence
+# ----------------------------------------------------------------------------
+persistence:
+  enabled: true
+  claims:
+    config:
+      size: 10Gi
+      storageClass: longhorn
+      accessMode: ReadWriteOnce
+      retain: true
+  volumes:
+    - name: config
+      persistentVolumeClaim:
+        claimName: home-assistant-config
+
+# ----------------------------------------------------------------------------
+# Feature: Observability
+# ----------------------------------------------------------------------------
+metrics:
+  # Home Assistant exposes Prometheus metrics from /api/prometheus.
+  # Keep disabled by default until credentials/scrape policy are configured.
+  enabled: false
+  serviceMonitor:
+    enabled: true
+    port: 8123
+    portName: metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    path: /api/prometheus
+  grafana:
+    enabled: false
+    folders:
+      default:
+        enabled: true
+        name: "Home Automation"
+    dashboards:
+      health:
+        enabled: true
+        folder: default
+        annotations:
+          k8s-sidecar-target-directory: /tmp/dashboards/home-assistant
+        spec:
+          title: "Home Assistant Health"
+          editable: false
+          timezone: browser
+          graphTooltip: 0
+          panels: []
+          schemaVersion: 39
+          style: dark
+          tags:
+            - home-assistant
+          templating:
+            list: []
+          time:
+            from: now-6h
+            to: now
+          timepicker: {}
+          version: 1
+  prometheusRule:
+    enabled: false
+
+# ----------------------------------------------------------------------------
+# Service Account
+# ----------------------------------------------------------------------------
+serviceAccount:
+  enabled: true
+  create: true
+  name: ""
+  annotations:
+    app.kubernetes.io/managed-by: argocd
+    description: Home Assistant service account
+  automountToken: false
+
+# ----------------------------------------------------------------------------
+# Pod Disruption Budget
+# ----------------------------------------------------------------------------
+podDisruptionBudget:
+  enabled: false
