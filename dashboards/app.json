@@ -1,0 +1,25 @@
+{
+  "title": "Home Assistant Overview",
+  "uid": "home-assistant-overview",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "tags": ["home-assistant"],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Home Assistant Up",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "max(up{job=~\".*home-assistant.*\"})",
+          "legendFormat": "up",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "templating": {"list": []},
+  "annotations": {"list": []},
+  "time": {"from": "now-6h", "to": "now"}
+}

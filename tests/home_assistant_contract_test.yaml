@@ -1,0 +1,59 @@
+suite: home-assistant chart contract
+templates:
+  - templates/all.yaml
+tests:
+  - it: renders main ingress route and service defaults
+    asserts:
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-route
+        equal:
+          path: spec.hostnames[0]
+          value: home-assistant-k8s.orhayoun.com
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-http
+        equal:
+          path: spec.ports[0].port
+          value: 8123
+
+  - it: wires deployment and config pvc defaults
+    asserts:
+      - documentSelector:
+          path: kind
+          value: Deployment
+        equal:
+          path: spec.template.spec.containers[0].name
+          value: home-assistant
+      - documentSelector:
+          path: kind
+          value: Deployment
+        equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 8123
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-config
+        equal:
+          path: spec.resources.requests.storage
+          value: 10Gi
+
+  - it: keeps minimal scenario render deterministic
+    values:
+      - scenarios/minimal.yaml
+    asserts:
+      - hasDocuments:
+          count: 6
+
+  - it: applies route host override
+    set:
+      network:
+        httpRoute:
+          host: hass.internal.example
+    asserts:
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-route
+        equal:
+          path: spec.hostnames[0]
+          value: hass.internal.example

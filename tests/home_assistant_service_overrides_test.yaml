@@ -1,0 +1,65 @@
+suite: home-assistant service and networking overrides
+templates:
+  - templates/all.yaml
+tests:
+  - it: applies http service type override
+    set:
+      network:
+        services:
+          items:
+            http:
+              type: NodePort
+    asserts:
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-http
+        equal:
+          path: spec.type
+          value: NodePort
+
+  - it: applies http service port override
+    set:
+      network:
+        services:
+          items:
+            http:
+              ports:
+                http:
+                  port: 18123
+    asserts:
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-http
+        equal:
+          path: spec.ports[0].port
+          value: 18123
+
+  - it: enables metrics service with prometheus endpoint port
+    set:
+      network:
+        services:
+          items:
+            metrics:
+              enabled: true
+      metrics:
+        enabled: true
+    asserts:
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-metrics
+        equal:
+          path: spec.ports[0].port
+          value: 8123
+
+  - it: applies http route host override
+    set:
+      network:
+        httpRoute:
+          host: home-assistant.override.internal
+    asserts:
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-route
+        equal:
+          path: spec.hostnames[0]
+          value: home-assistant.override.internal
