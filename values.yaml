@@ -222,10 +222,11 @@ deployment:
     type: Recreate
   revisionHistoryLimit: 3
   terminationGracePeriodSeconds: 60
-  # Set true for host-network mode (required by some discovery integrations).
-  # When enabled and dnsPolicy is omitted, lib-chart will render ClusterFirstWithHostNet.
-  # hostNetwork: false
-  dnsPolicy: ClusterFirst
+  # Home Assistant defaults to host networking for better discovery compatibility.
+  # TODO: This is currently enabled only for Home Assistant while multicast/mDNS and
+  # other pod-network-to-LAN discovery traffic behavior is being standardized.
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
   enableServiceLinks: false
   automountServiceAccountToken: false
 

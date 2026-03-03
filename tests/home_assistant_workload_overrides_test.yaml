@@ -2,6 +2,40 @@ suite: home-assistant workload overrides
 templates:
   - templates/all.yaml
 tests:
+  - it: enables host networking by default
+    asserts:
+      - documentSelector:
+          path: kind
+          value: Deployment
+        equal:
+          path: spec.template.spec.hostNetwork
+          value: true
+      - documentSelector:
+          path: kind
+          value: Deployment
+        equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirstWithHostNet
+
+  - it: allows host networking to be disabled explicitly
+    set:
+      deployment:
+        hostNetwork: false
+        dnsPolicy: ClusterFirst
+    asserts:
+      - documentSelector:
+          path: kind
+          value: Deployment
+        equal:
+          path: spec.template.spec.hostNetwork
+          value: false
+      - documentSelector:
+          path: kind
+          value: Deployment
+        equal:
+          path: spec.template.spec.dnsPolicy
+          value: ClusterFirst
+
   - it: applies deployment replica override
     set:
       deployment:
