@@ -58,6 +58,7 @@ make ci
 This chart is intentionally Kubernetes-native (`ClusterIP`/`HTTPRoute`) and includes a best-effort discovery network policy profile (mDNS/SSDP egress).
 
 Some Home Assistant integrations still require host-network behavior for full auto-discovery. This chart now supports host networking through `deployment.hostNetwork`.
+Current default is `deployment.hostNetwork: true` for Home Assistant deployments.
 
 Example:
 
@@ -117,6 +118,7 @@ make bump VERSION=x.y.z
 
 - Full Home Assistant auto-discovery parity may require host networking in some environments.
 - Host networking reduces pod network isolation; enable only when needed.
+- TODO: Host-network default is currently Home Assistant-specific. We still need a shared approach for multicast/mDNS and other pod-network-to-LAN discovery paths outside host networking.
 
 ## References
 

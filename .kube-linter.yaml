@@ -15,3 +15,5 @@ checks:
     - minimum-three-replicas
     # Stateful Home Assistant upgrades are intentionally serialized.
     - no-rolling-update-strategy
+    # Home Assistant currently defaults to host networking for discovery compatibility.
+    - host-network
