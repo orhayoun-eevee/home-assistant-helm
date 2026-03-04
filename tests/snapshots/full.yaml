@@ -12,7 +12,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
 spec:
   podSelector:
     matchLabels:
@@ -82,12 +82,11 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
 spec:
   podSelector:
     matchLabels:
       app.kubernetes.io/name: home-assistant
-      app.kubernetes.io/instance: test-release
   policyTypes:
     - Egress
   egress:
@@ -117,7 +116,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
   annotations:
     app.kubernetes.io/managed-by: argocd
     description: Home Assistant service account
@@ -136,7 +135,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
   annotations:
     helm.sh/resource-policy: keep
 spec:
@@ -160,7 +159,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
   annotations:
     description: Home Assistant HTTP service
 spec:
@@ -187,7 +186,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
 spec:
   replicas: 1
   revisionHistoryLimit: 3
@@ -206,7 +205,7 @@ spec:
         app.kubernetes.io/name: home-assistant
         app.kubernetes.io/part-of: home-automation
         app.kubernetes.io/version: 2026.2.1
-        helm.sh/chart: home-assistant-0.0.7
+        helm.sh/chart: home-assistant-0.0.8
         logging.kubernetes.io/component: home-automation
         logging.kubernetes.io/service: home-assistant
     spec:
@@ -297,7 +296,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
 spec:
   selector:
     matchLabels:
@@ -327,7 +326,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
 spec:
   selector:
     matchLabels:
@@ -357,7 +356,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
 spec:
   host: home-assistant-http
   trafficPolicy:
@@ -387,7 +386,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
 spec:
   parentRefs:
     - name: shared-platform-gateway
@@ -423,7 +422,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.7
+    helm.sh/chart: home-assistant-0.0.8
 spec:
   parentRefs:
     - name: shared-platform-gateway
