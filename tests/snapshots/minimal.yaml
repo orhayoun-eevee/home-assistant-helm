@@ -87,6 +87,7 @@ spec:
   podSelector:
     matchLabels:
       app.kubernetes.io/name: home-assistant
+      app.kubernetes.io/instance: test-release
   policyTypes:
     - Egress
   egress:
