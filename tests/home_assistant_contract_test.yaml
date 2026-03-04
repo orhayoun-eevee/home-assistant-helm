@@ -57,3 +57,101 @@ tests:
         equal:
           path: spec.hostnames[0]
           value: hass.internal.example
+
+  - it: supports route-level hostnames for split domains
+    set:
+      network:
+        httpRoute:
+          host: homeassistant.orhayoun.com
+          routes:
+            - name: route
+              enabled: true
+              listener:
+                sectionName: https
+              hostnames:
+                - homeassistant.orhayoun.com
+              rules:
+                - matches:
+                    - path:
+                        type: PathPrefix
+                        value: /
+                  backendRefs:
+                    - name: home-assistant-http
+                      port: 8123
+                      weight: 100
+                      group: ""
+                      kind: Service
+            - name: http-redirect
+              enabled: true
+              listener:
+                sectionName: http
+              hostnames:
+                - homeassistant.orhayoun.com
+              rules:
+                - matches:
+                    - path:
+                        type: PathPrefix
+                        value: /
+                  filters:
+                    - type: RequestRedirect
+                      requestRedirect:
+                        scheme: https
+                        statusCode: 301
+            - name: configurator
+              enabled: true
+              listener:
+                sectionName: https
+              hostnames:
+                - configurator-homeassistant.orhayoun.com
+              rules:
+                - matches:
+                    - path:
+                        type: PathPrefix
+                        value: /
+                  backendRefs:
+                    - name: home-assistant-configurator
+                      port: 3218
+                      weight: 1
+                      group: ""
+                      kind: Service
+            - name: configurator-http-redirect
+              enabled: true
+              listener:
+                sectionName: http
+              hostnames:
+                - configurator-homeassistant.orhayoun.com
+              rules:
+                - matches:
+                    - path:
+                        type: PathPrefix
+                        value: /
+                  filters:
+                    - type: RequestRedirect
+                      requestRedirect:
+                        scheme: https
+                        statusCode: 301
+    asserts:
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-route
+        equal:
+          path: spec.hostnames[0]
+          value: homeassistant.orhayoun.com
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-http-redirect
+        equal:
+          path: spec.hostnames[0]
+          value: homeassistant.orhayoun.com
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-configurator
+        equal:
+          path: spec.hostnames[0]
+          value: configurator-homeassistant.orhayoun.com
+      - documentSelector:
+          path: metadata.name
+          value: home-assistant-configurator-http-redirect
+        equal:
+          path: spec.hostnames[0]
+          value: configurator-homeassistant.orhayoun.com

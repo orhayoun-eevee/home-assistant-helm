@@ -1,6 +1,6 @@
 # Home Assistant Helm Chart
 
-This chart deploys Home Assistant using the shared dependency `lib-chart` (`0.0.10`).
+This chart deploys Home Assistant using the shared dependency `lib-chart` (`0.0.11`).
 
 ## Installation
 
@@ -10,7 +10,7 @@ helm install home-assistant . --namespace home-automation
 
 ## Dependencies
 
-- `lib-chart` (`0.0.10`) from `oci://ghcr.io/orhayoun-eevee`
+- `lib-chart` (`0.0.11`) from `oci://ghcr.io/orhayoun-eevee`
 
 Update dependencies from chart root:
 
