@@ -1,3 +1,4 @@
 skip-check:
   - CKV_K8S_40 # Home Assistant runs with explicit UID/GID to keep /config volume ownership predictable.
   - CKV_K8S_19 # Home Assistant defaults to hostNetwork for discovery compatibility (mDNS/SSDP); revisit after shared pod-network discovery approach is defined.
+  - CKV2_K8S_6 # app NetworkPolicy can be disabled intentionally in hostNetwork mode; sync CronJob remains isolated by its own policy.
