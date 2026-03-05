@@ -19,9 +19,11 @@ tests:
 
   - it: allows host networking to be disabled explicitly
     set:
-      deployment:
-        hostNetwork: false
-        dnsPolicy: ClusterFirst
+      application:
+        workload:
+          spec:
+            hostNetwork: false
+            dnsPolicy: ClusterFirst
     asserts:
       - documentSelector:
           path: kind
@@ -38,8 +40,10 @@ tests:
 
   - it: applies deployment replica override
     set:
-      deployment:
-        replicas: 2
+      application:
+        workload:
+          spec:
+            replicas: 2
     asserts:
       - documentSelector:
           path: kind
@@ -50,9 +54,11 @@ tests:
 
   - it: applies pod security context fsGroup override
     set:
-      deployment:
-        podSecurityContext:
-          fsGroup: 2000
+      application:
+        workload:
+          spec:
+            podSecurityContext:
+              fsGroup: 2000
     asserts:
       - documentSelector:
           path: kind
@@ -63,10 +69,11 @@ tests:
 
   - it: applies persistence pvc size override
     set:
-      persistence:
-        claims:
-          config:
-            size: 20Gi
+      application:
+        persistence:
+          claims:
+            config:
+              size: 20Gi
     asserts:
       - documentSelector:
           path: metadata.name
@@ -77,11 +84,17 @@ tests:
 
   - it: applies container security context runAsUser override
     set:
-      deployment:
-        containers:
-          home-assistant:
-            securityContext:
-              runAsUser: 2001
+      application:
+        workload:
+          spec:
+            containers:
+              home-assistant:
+                securityContext:
+                  runAsUser: 2001
+              hass-configurator:
+                enabled: false
+              matter-server:
+                enabled: false
     asserts:
       - documentSelector:
           path: kind

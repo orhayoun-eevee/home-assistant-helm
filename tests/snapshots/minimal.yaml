@@ -11,8 +11,8 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
-    app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.8
+    app.kubernetes.io/version: 2026.2.3
+    helm.sh/chart: home-assistant-0.0.9
 spec:
   podSelector:
     matchLabels:
@@ -21,24 +21,40 @@ spec:
   policyTypes:
     - Ingress
     - Egress
-  ingress:
-    - from:
-      - namespaceSelector:
-          matchLabels:
-            kubernetes.io/metadata.name: istio-system
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: shared-platform-gateway
-      - namespaceSelector:
-          matchLabels:
-            kubernetes.io/metadata.name: monitoring
-        podSelector:
-          matchLabels:
-            app.kubernetes.io/name: prometheus
-      ports:
-      - port: 15008
-        protocol: TCP
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: homeassistant-config-sync-sync
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: homeassistant-config-sync
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.9
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: homeassistant-config-sync
+      app.kubernetes.io/instance: test-release
+  policyTypes:
+    - Ingress
+    - Egress
   egress:
+    - ports:
+      - port: 443
+        protocol: TCP
+      to:
+      - ipBlock:
+          cidr: 0.0.0.0/0
+          except:
+          - 10.42.0.0/16
+          - 10.43.0.0/16
+          - 192.168.0.0/16
     - ports:
       - port: 53
         protocol: UDP
@@ -51,58 +67,6 @@ spec:
         podSelector:
           matchLabels:
             k8s-app: kube-dns
-    - ports:
-      - port: 443
-        protocol: TCP
-      to:
-      - ipBlock:
-          cidr: 0.0.0.0/0
-          except:
-          - 10.42.0.0/16
-          - 10.43.0.0/16
-          - 192.168.0.0/16
-    - ports:
-      - port: 15008
-        protocol: TCP
-      to:
-      - namespaceSelector:
-          matchLabels:
-            kubernetes.io/metadata.name: istio-system
----
-# Source: home-assistant/templates/all.yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: home-assistant-discovery
-  namespace: home-automation
-  labels:
-    app.kubernetes.io/component: network-policy
-    app.kubernetes.io/instance: test-release
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: home-assistant
-    app.kubernetes.io/part-of: home-automation
-    app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.8
-spec:
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: home-assistant
-      app.kubernetes.io/instance: test-release
-  policyTypes:
-    - Egress
-  egress:
-    - ports:
-      - port: 5353
-        protocol: UDP
-      to:
-      - ipBlock:
-          cidr: 224.0.0.251/32
-    - ports:
-      - port: 1900
-        protocol: UDP
-      to:
-      - ipBlock:
-          cidr: 239.255.255.250/32
 ---
 # Source: home-assistant/templates/all.yaml
 apiVersion: v1
@@ -116,11 +80,28 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
-    app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.8
+    app.kubernetes.io/version: 2026.2.3
+    helm.sh/chart: home-assistant-0.0.9
   annotations:
     app.kubernetes.io/managed-by: argocd
     description: Home Assistant service account
+automountServiceAccountToken: false
+---
+# Source: home-assistant/templates/all.yaml
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: homeassistant-config-sync
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: serviceaccount
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: homeassistant-config-sync
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.9
 automountServiceAccountToken: false
 ---
 # Source: home-assistant/templates/all.yaml
@@ -135,8 +116,8 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
-    app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.8
+    app.kubernetes.io/version: 2026.2.3
+    helm.sh/chart: home-assistant-0.0.9
   annotations:
     helm.sh/resource-policy: keep
 spec:
@@ -159,8 +140,8 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
-    app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.8
+    app.kubernetes.io/version: 2026.2.3
+    helm.sh/chart: home-assistant-0.0.9
   annotations:
     description: Home Assistant HTTP service
 spec:
@@ -186,11 +167,11 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
-    app.kubernetes.io/version: 2026.2.1
-    helm.sh/chart: home-assistant-0.0.8
+    app.kubernetes.io/version: 2026.2.3
+    helm.sh/chart: home-assistant-0.0.9
 spec:
   replicas: 1
-  revisionHistoryLimit: 3
+  revisionHistoryLimit: 10
   strategy:
     type: Recreate
   selector:
@@ -205,24 +186,83 @@ spec:
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/name: home-assistant
         app.kubernetes.io/part-of: home-automation
-        app.kubernetes.io/version: 2026.2.1
-        helm.sh/chart: home-assistant-0.0.8
+        app.kubernetes.io/version: 2026.2.3
+        helm.sh/chart: home-assistant-0.0.9
         logging.kubernetes.io/component: home-automation
         logging.kubernetes.io/service: home-assistant
     spec:
+      
       terminationGracePeriodSeconds: 60
       securityContext:
-        fsGroup: 1000
+        fsGroup: 20020
         fsGroupChangePolicy: OnRootMismatch
         runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups:
+        - 20020
       serviceAccountName: home-assistant
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       automountServiceAccountToken: false
       enableServiceLinks: false
+      initContainers:
+        - name: git-sync-init
+          image: ghcr.io/runlix/git:0.1.0-stable@sha256:5c1997f8a59433de06445ae19cfa3168573b144644890028962cf3f7105b2b62
+          imagePullPolicy: IfNotPresent
+          args:
+            - pull-init
+          env:
+            - name: REPO_URL
+              value: https://github.com/orhayoun-eevee/ha-config.git
+            - name: REPO_REF
+              value: main
+            - name: WORK_DIR
+              value: /work
+            - name: GITHUB_APP_ID
+              value: "2957635"
+            - name: GITHUB_APP_INSTALLATION_ID
+              value: "112668720"
+            - name: GITHUB_APP_PRIVATE_KEY_FILE
+              value: /etc/github-app/private-key.pem
+            - name: ALLOWLIST_FILES
+              value: configuration.yaml,automations.yaml,scripts.yaml,scenes.yaml
+            - name: ALLOWLIST_DIRS
+              value: packages,themes,www,blueprints,custom_components
+          volumeMounts:
+            - mountPath: /work
+              name: git-sync-data
+            - mountPath: /config
+              name: config
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /etc/github-app
+              name: homeassistant-github-app
+              readOnly: true
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 25m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            appArmorProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 20020
+            runAsNonRoot: true
+            runAsUser: 20020
+            seccompProfile:
+              type: RuntimeDefault
       containers:
         - name: home-assistant
-          image: ghcr.io/home-assistant/home-assistant:2026.2.1@sha256:db9b3d73ef5ff04c972aa929c48c85842346546a4fa3fa0af83ea878742baea6
+          image: ghcr.io/runlix/home-assistant:2026.2.3-stable@sha256:1e7217863b4ca184697f4b6ede4947c633430c120e9e2dec825b7b1c80db2645
           imagePullPolicy: Always
           ports:
             - name: http
@@ -231,12 +271,32 @@ spec:
           env:
             - name: TZ
               value: UTC
+            - name: HASS_TRUSTED_PROXIES
+              value: 10.42.0.0/16,10.43.0.0/16
+            - name: HASS_EXTERNAL_URL
+              value: https://homeassistant.orhayoun.com
+            - name: XDG_CACHE_HOME
+              value: /cache
+            - name: UV_CACHE_DIR
+              value: /cache/uv
+            - name: TMPDIR
+              value: /tmp
           volumeMounts:
             - mountPath: /config
               name: config
+            - mountPath: /config/secrets.yaml
+              name: homeassistant-secrets
+              readOnly: true
+              subPath: secrets.yaml
+            - mountPath: /cache
+              name: cache
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /config/backups
+              name: backups
           resources:
             limits:
-              cpu: 2
+              cpu: "2"
               memory: 2Gi
             requests:
               cpu: 100m
@@ -270,16 +330,160 @@ spec:
             timeoutSeconds: 5
           securityContext:
             allowPrivilegeEscalation: false
+            appArmorProfile:
+              type: RuntimeDefault
             capabilities:
               drop:
               - ALL
+            privileged: false
             readOnlyRootFilesystem: true
-            runAsGroup: 1000
+            runAsGroup: 20020
             runAsNonRoot: true
-            runAsUser: 1000
+            runAsUser: 20020
             seccompProfile:
               type: RuntimeDefault
       volumes:
         - name: config
           persistentVolumeClaim:
             claimName: home-assistant-config
+        - name: homeassistant-secrets
+          secret:
+            secretName: homeassistant-secrets
+        - name: homeassistant-github-app
+          secret:
+            secretName: homeassistant-github-app
+        - emptyDir: {}
+          name: git-sync-data
+        - emptyDir: {}
+          name: cache
+        - emptyDir: {}
+          name: tmp
+        - name: backups
+          nfs:
+            path: /mnt/vol1/k8s/ha-automation/home-assistant
+            server: snorlax.orhayoun.com
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: homeassistant-config-sync
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: cronjob
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: homeassistant-config-sync
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.1
+    helm.sh/chart: home-assistant-0.0.9
+spec:
+  schedule: "30 2 * * *"
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 1800
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/component: cronjob
+            app.kubernetes.io/instance: test-release
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/name: homeassistant-config-sync
+            app.kubernetes.io/part-of: home-automation
+            app.kubernetes.io/version: 2026.2.1
+            helm.sh/chart: home-assistant-0.0.9
+        spec:
+          
+          terminationGracePeriodSeconds: 30
+          securityContext:
+            fsGroup: 20020
+            fsGroupChangePolicy: OnRootMismatch
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          serviceAccountName: homeassistant-config-sync
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: home-assistant
+                topologyKey: kubernetes.io/hostname
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          containers:
+            - name: sync
+              image: ghcr.io/runlix/git:0.1.0-stable@sha256:5c1997f8a59433de06445ae19cfa3168573b144644890028962cf3f7105b2b62
+              imagePullPolicy: IfNotPresent
+              args:
+                - sync-push
+              env:
+                - name: REPO_URL
+                  value: https://github.com/orhayoun-eevee/ha-config.git
+                - name: REPO_REF
+                  value: main
+                - name: WORK_DIR
+                  value: /work
+                - name: GITHUB_APP_ID
+                  value: "2957635"
+                - name: GITHUB_APP_INSTALLATION_ID
+                  value: "112668720"
+                - name: GITHUB_APP_PRIVATE_KEY_FILE
+                  value: /etc/github-app/private-key.pem
+                - name: ALLOWLIST_FILES
+                  value: configuration.yaml,automations.yaml,scripts.yaml,scenes.yaml
+                - name: ALLOWLIST_DIRS
+                  value: packages,themes,www,blueprints,custom_components
+                - name: DENYLIST_PATHS
+                  value: secrets.yaml,.storage,home-assistant_v2.db,home-assistant.log,deps,tts,cloud,ssh
+                - name: GIT_AUTHOR_NAME
+                  value: homeassistant-sync-bot
+                - name: GIT_AUTHOR_EMAIL
+                  value: homeassistant-sync-bot@orhayoun.local
+                - name: COMMIT_MESSAGE_TEMPLATE
+                  value: homeassistant config sync ({{ref}} @ {{timestamp}})
+              volumeMounts:
+                - mountPath: /config
+                  name: config
+                  readOnly: true
+                - mountPath: /etc/github-app
+                  name: homeassistant-github-app
+                  readOnly: true
+                - mountPath: /work
+                  name: work
+                - mountPath: /tmp
+                  name: tmp
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                appArmorProfile:
+                  type: RuntimeDefault
+                capabilities:
+                  drop:
+                  - ALL
+                privileged: false
+                readOnlyRootFilesystem: true
+                runAsGroup: 20020
+                runAsNonRoot: true
+                runAsUser: 20020
+                seccompProfile:
+                  type: RuntimeDefault
+          volumes:
+            - name: config
+              persistentVolumeClaim:
+                claimName: home-assistant-config
+            - name: homeassistant-github-app
+              secret:
+                secretName: homeassistant-github-app
+            - emptyDir: {}
+              name: work
+            - emptyDir: {}
+              name: tmp

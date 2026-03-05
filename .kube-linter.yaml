@@ -17,3 +17,8 @@ checks:
     - no-rolling-update-strategy
     # Home Assistant currently defaults to host networking for discovery compatibility.
     - host-network
+    # sync CronJob is a short-lived batch workload; probes are not rendered by current lib-chart cronjob container schema.
+    - no-liveness-probe
+    - no-readiness-probe
+    # sync CronJob intentionally omits ttlSecondsAfterFinished to avoid conflicts with history controls.
+    - job-ttl-seconds-after-finished

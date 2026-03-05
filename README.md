@@ -1,6 +1,8 @@
 # Home Assistant Helm Chart
 
-This chart deploys Home Assistant using the shared dependency `lib-chart` (`0.0.11`).
+This chart deploys Home Assistant using the shared dependency `lib-chart` (`0.0.12`) in two contexts:
+- `application` (Deployment workload)
+- `sync` (CronJob workload for config sync)
 
 ## Installation
 
@@ -10,7 +12,8 @@ helm install home-assistant . --namespace home-automation
 
 ## Dependencies
 
-- `lib-chart` (`0.0.11`) from `oci://ghcr.io/orhayoun-eevee`
+- `application` alias of `lib-chart` (`0.0.12`) from `oci://ghcr.io/orhayoun-eevee`
+- `sync` context rendered via the same library templates with `sync.*` values
 
 Update dependencies from chart root:
 
@@ -57,16 +60,25 @@ make ci
 
 This chart is intentionally Kubernetes-native (`ClusterIP`/`HTTPRoute`) and includes a best-effort discovery network policy profile (mDNS/SSDP egress).
 
-Some Home Assistant integrations still require host-network behavior for full auto-discovery. This chart now supports host networking through `deployment.hostNetwork`.
-Current default is `deployment.hostNetwork: true` for Home Assistant deployments.
+Some Home Assistant integrations still require host-network behavior for full auto-discovery. This chart now supports host networking through `application.workload.spec.hostNetwork`.
+Current default is `application.workload.spec.hostNetwork: true` for Home Assistant deployments.
 
 Example:
 
 ```yaml
-deployment:
-  hostNetwork: true
-  # Optional override. If omitted while hostNetwork=true, lib-chart renders ClusterFirstWithHostNet.
-  dnsPolicy: ClusterFirstWithHostNet
+application:
+  workload:
+    type: deployment
+    spec:
+      hostNetwork: true
+      # Optional override. If omitted while hostNetwork=true, lib-chart renders ClusterFirstWithHostNet.
+      dnsPolicy: ClusterFirstWithHostNet
+
+sync:
+  workload:
+    type: cronJob
+    spec:
+      schedule: "30 2 * * *"
 ```
 
 ## Metrics Note
@@ -119,6 +131,15 @@ make bump VERSION=x.y.z
 - Full Home Assistant auto-discovery parity may require host networking in some environments.
 - Host networking reduces pod network isolation; enable only when needed.
 - TODO: Host-network default is currently Home Assistant-specific. We still need a shared approach for multicast/mDNS and other pod-network-to-LAN discovery paths outside host networking.
+
+## External Runtime Secrets
+
+This chart intentionally keeps dynamic/runtime secrets outside Helm values. Create/manage these externally:
+
+- `homeassistant-secrets`
+- `homeassistant-github-app`
+- `homeassistant-configurator` (optional)
+- `homeassistant-prometheus-token`
 
 ## References
 
