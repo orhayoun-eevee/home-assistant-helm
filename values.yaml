@@ -626,6 +626,8 @@ sync:
       schedule: "30 2 * * *"
       concurrencyPolicy: Forbid
       startingDeadlineSeconds: 1800
+      successfulJobsHistoryLimit: 3
+      failedJobsHistoryLimit: 7
       restartPolicy: Never
       imagePullSecrets: []
       terminationGracePeriodSeconds: 30
@@ -645,6 +647,8 @@ sync:
               topologyKey: kubernetes.io/hostname
       jobTemplate:
         backoffLimit: 1
+        ttlSecondsAfterFinished: 86400
+        activeDeadlineSeconds: 600
       containers:
         sync:
           enabled: true
