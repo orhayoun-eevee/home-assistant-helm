@@ -43,7 +43,7 @@ tests:
       - scenarios/minimal.yaml
     asserts:
       - hasDocuments:
-          count: 8
+          count: 7
 
   - it: applies route host override
     set:

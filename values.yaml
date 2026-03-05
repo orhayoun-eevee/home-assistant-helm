@@ -11,7 +11,6 @@ application:
       appVersion: 2026.2.3
     labels:
       partOf: home-automation
-
   network:
     enabled: true
     services:
@@ -46,7 +45,6 @@ application:
               protocol: TCP
           annotations:
             description: "Home Assistant configurator service"
-
     httpRoute:
       enabled: true
       port: 8123
@@ -120,11 +118,10 @@ application:
                   requestRedirect:
                     scheme: https
                     statusCode: 301
-
     networkPolicy:
       items:
         default:
-          enabled: true
+          enabled: false
           policyTypes:
             - Ingress
             - Egress
@@ -132,7 +129,6 @@ application:
           enabled: false
           policyTypes:
             - Egress
-
     istio:
       enabled: true
       authorizationPolicy:
@@ -153,7 +149,6 @@ application:
             interval: 30s
             baseEjectionTime: 30s
             maxEjectionPercent: 50
-
   workload:
     type: deployment
     spec:
@@ -236,7 +231,7 @@ application:
           enabled: true
           image:
             repository: ghcr.io/runlix/home-assistant
-            tag: "2026.2.3-stable@sha256:1e7217863b4ca184697f4b6ede4947c633430c120e9e2dec825b7b1c80db2645"
+            tag: "2026.2.3-stable@sha256:8442e483a783d293d00314db8163d83722bb9659e09ae80e5051aa681ed078e0"
             pullPolicy: Always
           ports:
             - name: http
@@ -449,7 +444,6 @@ application:
             capabilities:
               drop:
                 - ALL
-
   persistence:
     enabled: true
     claims:
@@ -478,7 +472,6 @@ application:
         nfs:
           server: snorlax.orhayoun.com
           path: /mnt/vol1/k8s/ha-automation/home-assistant
-
   metrics:
     enabled: true
     serviceMonitor:
@@ -604,7 +597,6 @@ application:
           annotations:
             summary: "Home Assistant config sync CronJob is missing schedules"
             description: "CronJob homeassistant-config-sync next schedule timestamp is overdue by more than 1 hour."
-
   serviceAccount:
     create: true
     name: ""
@@ -612,14 +604,12 @@ application:
       app.kubernetes.io/managed-by: argocd
       description: Home Assistant service account
     automount: false
-
 sync:
   global:
     name: homeassistant-config-sync
     namespace: home-automation
     labels:
       partOf: home-automation
-
   workload:
     type: cronJob
     spec:
@@ -676,7 +666,7 @@ sync:
             - name: ALLOWLIST_DIRS
               value: "packages,themes,www,blueprints,custom_components"
             - name: DENYLIST_PATHS
-              value: "secrets.yaml,.storage,home-assistant_v2.db,home-assistant.log,deps,tts,cloud,ssh"
+              value: "secrets.yaml,.storage,home-assistant_v2.db,home-assistant.log,deps,tts,cloud,ssh,custom_components/spook_inverse"
             - name: GIT_AUTHOR_NAME
               value: homeassistant-sync-bot
             - name: GIT_AUTHOR_EMAIL
@@ -715,7 +705,6 @@ sync:
             limits:
               cpu: 200m
               memory: 256Mi
-
   persistence:
     enabled: false
     volumes:
@@ -729,13 +718,11 @@ sync:
         emptyDir: {}
       - name: tmp
         emptyDir: {}
-
   serviceAccount:
     create: true
     name: homeassistant-config-sync
     automount: false
     annotations: {}
-
   network:
     enabled: true
     networkPolicy:
@@ -768,13 +755,10 @@ sync:
                   port: 53
                 - protocol: TCP
                   port: 53
-
   metrics:
     enabled: false
-
   podDisruptionBudget:
     enabled: false
-
 # Dynamic/runtime secrets are intentionally external to this chart.
 # Required examples:
 # - Secret/homeassistant-secrets (application runtime config)
