@@ -9,7 +9,8 @@ keywords:
   - home-automation
 dependencies:
   - name: lib-chart
-    version: "0.0.11"
+    alias: application
+    version: "0.0.12"
     repository: "oci://ghcr.io/orhayoun-eevee"
 maintainers:
   - name: Home Assistant Team

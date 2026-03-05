@@ -1,1 +1,11 @@
-{{- include "libChart.all" . -}}
+{{- $appDefaults := .Values.application | default dict -}}
+{{- $rootCompat := omit .Values "application" "sync" -}}
+{{- $appValues := mergeOverwrite (deepCopy $appDefaults) $rootCompat -}}
+{{- $appCtx := dict "Values" $appValues "Chart" .Chart "Release" .Release "Capabilities" .Capabilities "Files" .Files "Template" .Template -}}
+{{- include "libChart.all" $appCtx -}}
+
+{{- if .Values.sync }}
+{{ print "\n---\n" }}
+{{- $syncCtx := dict "Values" .Values.sync "Chart" .Chart "Release" .Release "Capabilities" .Capabilities "Files" .Files "Template" .Template -}}
+{{- include "libChart.all" $syncCtx -}}
+{{- end -}}
