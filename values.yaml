@@ -36,7 +36,7 @@ application:
           annotations:
             description: "Home Assistant Prometheus endpoint service"
         configurator:
-          enabled: false
+          enabled: true
           type: ClusterIP
           ports:
             http:
@@ -86,7 +86,7 @@ application:
                     scheme: https
                     statusCode: 301
         - name: configurator
-          enabled: false
+          enabled: true
           listener:
             sectionName: https
           hostnames:
@@ -103,7 +103,7 @@ application:
                   group: ""
                   kind: Service
         - name: configurator-http-redirect
-          enabled: false
+          enabled: true
           listener:
             sectionName: http
           hostnames:
@@ -312,11 +312,11 @@ application:
             - name: backups
               mountPath: /config/backups
         hass-configurator:
-          enabled: false
+          enabled: true
           image:
             repository: ghcr.io/runlix/home-assistant-configurator
             tag: "0.5.2-stable@sha256:3e59684488ec7f13330de4a866ec30e22c3f886389f21c398e3b2d5b1ea0da7b"
-            pullPolicy: IfNotPresent
+            pullPolicy: Always
           ports:
             - name: configurator
               containerPort: 3218
@@ -330,12 +330,20 @@ application:
               value: "http://127.0.0.1:8123/api/"
             - name: HC_HASS_WS_API
               value: "ws://127.0.0.1:8123/api/websocket"
-            - name: HC_HASS_API_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: homeassistant-configurator
-                  key: hass_api_token
-                  optional: true
+          livenessProbe:
+            tcpSocket:
+              port: configurator
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: configurator
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             requests:
               cpu: 25m
@@ -346,6 +354,11 @@ application:
           volumeMounts:
             - name: config
               mountPath: /hass-config
+            - name: homeassistant-configurator-settings
+              mountPath: /home/hass/.homeassistant
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
           securityContext:
             runAsUser: 20020
             runAsGroup: 20020
@@ -354,22 +367,36 @@ application:
             allowPrivilegeEscalation: false
             appArmorProfile:
               type: RuntimeDefault
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: true
             seccompProfile:
               type: RuntimeDefault
             capabilities:
               drop:
                 - ALL
         matter-server:
-          enabled: false
+          enabled: true
           image:
             repository: ghcr.io/home-assistant-libs/python-matter-server
-            tag: "stable"
-            pullPolicy: IfNotPresent
+            tag: "stable@sha256:3f1687469f5ecf8f8f3016ba00f154722fefdb1108f6f789734763f2be4ca1e3"
+            pullPolicy: Always
           ports:
             - name: matter
               containerPort: 5580
               protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: matter
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: matter
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             requests:
               cpu: 100m
@@ -381,6 +408,8 @@ application:
             - name: config
               mountPath: /data
               subPath: matter-server
+            - name: tmp
+              mountPath: /tmp
           securityContext:
             runAsUser: 20020
             runAsGroup: 20020
@@ -389,7 +418,7 @@ application:
             allowPrivilegeEscalation: false
             appArmorProfile:
               type: RuntimeDefault
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: true
             seccompProfile:
               type: RuntimeDefault
             capabilities:
@@ -462,6 +491,9 @@ application:
       - name: homeassistant-github-app
         secret:
           secretName: homeassistant-github-app
+      - name: homeassistant-configurator-settings
+        secret:
+          secretName: homeassistant-configurator
       - name: git-sync-data
         emptyDir: {}
       - name: cache
@@ -520,10 +552,20 @@ application:
             summary: "Home Assistant service is down"
             description: "Home Assistant service is unavailable for more than 5 minutes."
         - alert: HomeAssistantHighMemoryUsage
-          expr: >-
-            (container_memory_working_set_bytes{pod=~"home-assistant.*", namespace="home-automation"}
-            / on(pod, namespace) kube_pod_container_resource_limits{resource="memory", pod=~"home-assistant.*",
-            namespace="home-automation"}) * 100 > 85
+          expr: |
+            (
+              container_memory_working_set_bytes{
+                pod=~"home-assistant.*",
+                namespace="home-automation"
+              }
+              /
+              on(pod, namespace)
+              kube_pod_container_resource_limits{
+                resource="memory",
+                pod=~"home-assistant.*",
+                namespace="home-automation"
+              }
+            ) * 100 > 85
           for: 5m
           labels:
             severity: warning
@@ -533,10 +575,20 @@ application:
             summary: "Home Assistant high memory usage"
             description: "Home Assistant pod {{ $labels.pod }} memory usage is above 85% for more than 5 minutes."
         - alert: HomeAssistantHighCPUUsage
-          expr: >-
-            (rate(container_cpu_usage_seconds_total{pod=~"home-assistant.*", namespace="home-automation"}[5m])
-            / on(pod, namespace) kube_pod_container_resource_limits{resource="cpu", pod=~"home-assistant.*",
-            namespace="home-automation"}) * 100 > 80
+          expr: |
+            (
+              rate(container_cpu_usage_seconds_total{
+                pod=~"home-assistant.*",
+                namespace="home-automation"
+              }[5m])
+              /
+              on(pod, namespace)
+              kube_pod_container_resource_limits{
+                resource="cpu",
+                pod=~"home-assistant.*",
+                namespace="home-automation"
+              }
+            ) * 100 > 80
           for: 5m
           labels:
             severity: warning
@@ -556,10 +608,18 @@ application:
             summary: "Home Assistant pod restarting frequently"
             description: "Home Assistant pod {{ $labels.pod }} has restarted more than 2 times in the last hour."
         - alert: HomeAssistantConfigPVHighUsage
-          expr: >-
-            (kubelet_volume_stats_used_bytes{persistentvolumeclaim=~".*home-assistant.*", namespace="home-automation"}
-            / kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~".*home-assistant.*",
-            namespace="home-automation"}) * 100 > 80
+          expr: |
+            (
+              kubelet_volume_stats_used_bytes{
+                persistentvolumeclaim=~".*home-assistant.*",
+                namespace="home-automation"
+              }
+              /
+              kubelet_volume_stats_capacity_bytes{
+                persistentvolumeclaim=~".*home-assistant.*",
+                namespace="home-automation"
+              }
+            ) * 100 > 80
           for: 2m
           labels:
             severity: warning
@@ -570,10 +630,18 @@ application:
             summary: "Home Assistant config volume high usage"
             description: "Home Assistant config volume {{ $labels.persistentvolumeclaim }} usage is above 80%."
         - alert: HomeAssistantConfigSyncCronJobStaleSuccess
-          expr: >-
-            (time() - kube_cronjob_status_last_successful_time{namespace="home-automation",
-            cronjob="homeassistant-config-sync"}) > 129600 and
-            kube_cronjob_spec_suspend{namespace="home-automation", cronjob="homeassistant-config-sync"} == 0
+          expr: |
+            (
+              time() - kube_cronjob_status_last_successful_time{
+                namespace="home-automation",
+                cronjob="homeassistant-config-sync"
+              }
+            ) > 129600
+            and
+            kube_cronjob_spec_suspend{
+              namespace="home-automation",
+              cronjob="homeassistant-config-sync"
+            } == 0
           for: 30m
           labels:
             severity: warning
@@ -584,10 +652,18 @@ application:
             summary: "Home Assistant config sync CronJob has stale successful runs"
             description: "CronJob homeassistant-config-sync has not reported a successful run in more than 36 hours."
         - alert: HomeAssistantConfigSyncCronJobMissedSchedule
-          expr: >-
-            (time() - kube_cronjob_next_schedule_time{namespace="home-automation",
-            cronjob="homeassistant-config-sync"}) > 3600 and
-            kube_cronjob_spec_suspend{namespace="home-automation", cronjob="homeassistant-config-sync"} == 0
+          expr: |
+            (
+              time() - kube_cronjob_next_schedule_time{
+                namespace="home-automation",
+                cronjob="homeassistant-config-sync"
+              }
+            ) > 3600
+            and
+            kube_cronjob_spec_suspend{
+              namespace="home-automation",
+              cronjob="homeassistant-config-sync"
+            } == 0
           for: 15m
           labels:
             severity: critical
@@ -763,5 +839,5 @@ sync:
 # Required examples:
 # - Secret/homeassistant-secrets (application runtime config)
 # - Secret/homeassistant-github-app (git auth key)
-# - Secret/homeassistant-configurator (optional API token)
+# - Secret/homeassistant-configurator (settings.conf containing HASS_API_PASSWORD)
 # - Secret/homeassistant-prometheus-token (ServiceMonitor auth)

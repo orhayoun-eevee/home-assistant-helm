@@ -109,6 +109,33 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: home-assistant-configurator
+  namespace: home-automation
+  labels:
+    app.kubernetes.io/component: service-configurator
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/part-of: home-automation
+    app.kubernetes.io/version: 2026.2.3
+    helm.sh/chart: home-assistant-0.0.11
+  annotations:
+    description: Home Assistant configurator service
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3218
+      targetPort: configurator
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: home-assistant
+    app.kubernetes.io/instance: test-release
+---
+# Source: home-assistant/templates/all.yaml
+apiVersion: v1
+kind: Service
+metadata:
   name: home-assistant-http
   namespace: home-automation
   labels:
@@ -238,6 +265,65 @@ spec:
             seccompProfile:
               type: RuntimeDefault
       containers:
+        - name: hass-configurator
+          image: ghcr.io/runlix/home-assistant-configurator:0.5.2-stable@sha256:3e59684488ec7f13330de4a866ec30e22c3f886389f21c398e3b2d5b1ea0da7b
+          imagePullPolicy: Always
+          ports:
+            - name: configurator
+              containerPort: 3218
+              protocol: TCP
+          env:
+            - name: HC_BASEPATH
+              value: /hass-config
+            - name: HC_PORT
+              value: "3218"
+            - name: HC_HASS_API
+              value: http://127.0.0.1:8123/api/
+            - name: HC_HASS_WS_API
+              value: ws://127.0.0.1:8123/api/websocket
+          volumeMounts:
+            - mountPath: /hass-config
+              name: config
+            - mountPath: /home/hass/.homeassistant
+              name: homeassistant-configurator-settings
+              readOnly: true
+            - mountPath: /tmp
+              name: tmp
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 25m
+              memory: 64Mi
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            tcpSocket:
+              port: configurator
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            tcpSocket:
+              port: configurator
+            timeoutSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            appArmorProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 20020
+            runAsNonRoot: true
+            runAsUser: 20020
+            seccompProfile:
+              type: RuntimeDefault
         - name: home-assistant
           image: ghcr.io/runlix/home-assistant:2026.2.3-stable@sha256:8442e483a783d293d00314db8163d83722bb9659e09ae80e5051aa681ed078e0
           imagePullPolicy: Always
@@ -319,6 +405,54 @@ spec:
             runAsUser: 20020
             seccompProfile:
               type: RuntimeDefault
+        - name: matter-server
+          image: ghcr.io/home-assistant-libs/python-matter-server:stable@sha256:3f1687469f5ecf8f8f3016ba00f154722fefdb1108f6f789734763f2be4ca1e3
+          imagePullPolicy: Always
+          ports:
+            - name: matter
+              containerPort: 5580
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /data
+              name: config
+              subPath: matter-server
+            - mountPath: /tmp
+              name: tmp
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            tcpSocket:
+              port: matter
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            tcpSocket:
+              port: matter
+            timeoutSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            appArmorProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 20020
+            runAsNonRoot: true
+            runAsUser: 20020
+            seccompProfile:
+              type: RuntimeDefault
       volumes:
         - name: config
           persistentVolumeClaim:
@@ -329,6 +463,9 @@ spec:
         - name: homeassistant-github-app
           secret:
             secretName: homeassistant-github-app
+        - name: homeassistant-configurator-settings
+          secret:
+            secretName: homeassistant-configurator
         - emptyDir: {}
           name: git-sync-data
         - emptyDir: {}

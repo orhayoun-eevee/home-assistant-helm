@@ -138,7 +138,7 @@ This chart intentionally keeps dynamic/runtime secrets outside Helm values. Crea
 
 - `homeassistant-secrets`
 - `homeassistant-github-app`
-- `homeassistant-configurator` (optional)
+- `homeassistant-configurator` (required when configurator is enabled; include key `settings.conf` with `HASS_API_PASSWORD`)
 - `homeassistant-prometheus-token`
 
 ## References
