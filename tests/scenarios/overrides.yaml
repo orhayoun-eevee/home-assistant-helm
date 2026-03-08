@@ -20,4 +20,4 @@ workload:
     containers:
       home-assistant:
         securityContext:
-          runAsUser: 2001
+          runAsUser: 20021

@@ -90,7 +90,7 @@ tests:
             containers:
               home-assistant:
                 securityContext:
-                  runAsUser: 2001
+                  runAsUser: 20021
               hass-configurator:
                 enabled: false
               matter-server:
@@ -101,4 +101,4 @@ tests:
           value: Deployment
         equal:
           path: spec.template.spec.containers[0].securityContext.runAsUser
-          value: 2001
+          value: 20021

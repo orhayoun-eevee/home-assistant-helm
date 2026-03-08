@@ -18,6 +18,15 @@ tests:
           value: 8123
 
   - it: wires deployment and config pvc defaults
+    set:
+      application:
+        workload:
+          spec:
+            containers:
+              hass-configurator:
+                enabled: false
+              matter-server:
+                enabled: false
     asserts:
       - documentSelector:
           path: kind
@@ -43,7 +52,7 @@ tests:
       - scenarios/minimal.yaml
     asserts:
       - hasDocuments:
-          count: 7
+          count: 8
 
   - it: applies route host override
     set:
