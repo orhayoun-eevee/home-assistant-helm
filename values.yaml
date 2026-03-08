@@ -355,7 +355,8 @@ application:
             - name: config
               mountPath: /hass-config
             - name: homeassistant-configurator-settings
-              mountPath: /home/hass/.homeassistant
+              mountPath: /config/settings.conf
+              subPath: settings.conf
               readOnly: true
             - name: tmp
               mountPath: /tmp
