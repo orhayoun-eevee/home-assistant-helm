@@ -1,4 +1,16 @@
 # Minimal scenario: disables optional networking/monitoring features for baseline rendering.
+application:
+  global:
+    namespace: install-smoke
+  persistence:
+    claims:
+      config:
+        storageClass: local-path
+
+sync:
+  global:
+    namespace: install-smoke
+
 network:
   httpRoute:
     enabled: false
