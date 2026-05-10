@@ -212,7 +212,7 @@ spec:
       enableServiceLinks: false
       initContainers:
         - name: git-sync-init
-          image: ghcr.io/runlix/git:0.1.0-stable@sha256:5c1997f8a59433de06445ae19cfa3168573b144644890028962cf3f7105b2b62
+          image: ghcr.io/runlix/git:0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04
           imagePullPolicy: IfNotPresent
           args:
             - pull-init
@@ -266,7 +266,7 @@ spec:
               type: RuntimeDefault
       containers:
         - name: hass-configurator
-          image: ghcr.io/runlix/home-assistant-configurator:0.5.2-stable@sha256:3e59684488ec7f13330de4a866ec30e22c3f886389f21c398e3b2d5b1ea0da7b
+          image: ghcr.io/runlix/home-assistant-configurator:0.5.2-stable@sha256:151eca85c6d243dd999f01839b58e234ccf8b4d26c415c8c41f4d2ae38477f02
           imagePullPolicy: Always
           ports:
             - name: configurator
@@ -326,7 +326,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
         - name: home-assistant
-          image: ghcr.io/runlix/home-assistant:2026.2.3-stable@sha256:8442e483a783d293d00314db8163d83722bb9659e09ae80e5051aa681ed078e0
+          image: ghcr.io/runlix/home-assistant:2026.4.0-stable@sha256:aaf1ebf40f4e6f68e7d9837f9fd6d0854e32a07a4c429de08b2f15e21e35bbff
           imagePullPolicy: Always
           ports:
             - name: http
@@ -407,7 +407,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
         - name: matter-server
-          image: ghcr.io/home-assistant-libs/python-matter-server:stable@sha256:3f1687469f5ecf8f8f3016ba00f154722fefdb1108f6f789734763f2be4ca1e3
+          image: ghcr.io/home-assistant-libs/python-matter-server:stable@sha256:170aa093ce91c76cde4cc390918307590f0f5558fcec93f913af3cb019e6562a
           imagePullPolicy: Always
           ports:
             - name: matter
@@ -534,7 +534,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: sync
-              image: ghcr.io/runlix/git:0.1.0-stable@sha256:5c1997f8a59433de06445ae19cfa3168573b144644890028962cf3f7105b2b62
+              image: ghcr.io/runlix/git:0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04
               imagePullPolicy: IfNotPresent
               args:
                 - sync-push
