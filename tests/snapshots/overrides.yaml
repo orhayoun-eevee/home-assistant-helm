@@ -12,7 +12,7 @@ metadata:
     app.kubernetes.io/name: homeassistant-config-sync
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.4.0
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   podSelector:
     matchLabels:
@@ -58,7 +58,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
   annotations:
     app.kubernetes.io/managed-by: argocd
     description: Home Assistant service account
@@ -78,7 +78,7 @@ metadata:
     app.kubernetes.io/name: homeassistant-config-sync
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.4.0
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 automountServiceAccountToken: false
 ---
 # Source: home-assistant/templates/all.yaml
@@ -94,7 +94,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
   annotations:
     helm.sh/resource-policy: keep
 spec:
@@ -118,7 +118,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
   annotations:
     description: Home Assistant configurator service
 spec:
@@ -145,7 +145,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
   annotations:
     description: Home Assistant HTTP service
 spec:
@@ -172,7 +172,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
   annotations:
     description: Home Assistant Prometheus endpoint service
 spec:
@@ -199,7 +199,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   replicas: 2
   revisionHistoryLimit: 10
@@ -218,7 +218,7 @@ spec:
         app.kubernetes.io/name: home-assistant
         app.kubernetes.io/part-of: home-automation
         app.kubernetes.io/version: 2026.2.3
-        helm.sh/chart: home-assistant-0.0.16
+        helm.sh/chart: home-assistant-0.0.17
         logging.kubernetes.io/component: home-automation
         logging.kubernetes.io/service: home-assistant
     spec:
@@ -239,7 +239,7 @@ spec:
       enableServiceLinks: false
       initContainers:
         - name: git-sync-init
-          image: ghcr.io/runlix/git:0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04
+          image: ghcr.io/runlix/git:0.1.0-stable@sha256:b3a68415d4202042c39de35074192808a90d74dcf7a1bc9085e360167bb57629
           imagePullPolicy: IfNotPresent
           args:
             - pull-init
@@ -293,7 +293,7 @@ spec:
               type: RuntimeDefault
       containers:
         - name: hass-configurator
-          image: ghcr.io/runlix/home-assistant-configurator:0.5.2-stable@sha256:151eca85c6d243dd999f01839b58e234ccf8b4d26c415c8c41f4d2ae38477f02
+          image: ghcr.io/runlix/home-assistant-configurator:0.5.2-stable@sha256:b90bc7013e088a118b5e6fda0abbaa81f4ab5cacab8039c0151d7ef6440df6a3
           imagePullPolicy: Always
           ports:
             - name: configurator
@@ -353,7 +353,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
         - name: home-assistant
-          image: ghcr.io/runlix/home-assistant:2026.4.0-stable@sha256:aaf1ebf40f4e6f68e7d9837f9fd6d0854e32a07a4c429de08b2f15e21e35bbff
+          image: ghcr.io/runlix/home-assistant:2026.4.0-stable@sha256:2c07c794d0d04f1b2afa9b7518b454033ee6af6b79f2790787723c8535c44d81
           imagePullPolicy: Always
           ports:
             - name: http
@@ -518,7 +518,7 @@ metadata:
     app.kubernetes.io/name: homeassistant-config-sync
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.4.0
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   schedule: "30 2 * * *"
   concurrencyPolicy: Forbid
@@ -539,7 +539,7 @@ spec:
             app.kubernetes.io/name: homeassistant-config-sync
             app.kubernetes.io/part-of: home-automation
             app.kubernetes.io/version: 2026.4.0
-            helm.sh/chart: home-assistant-0.0.16
+            helm.sh/chart: home-assistant-0.0.17
         spec:
           
           terminationGracePeriodSeconds: 30
@@ -561,7 +561,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: sync
-              image: ghcr.io/runlix/git:0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04
+              image: ghcr.io/runlix/git:0.1.0-stable@sha256:b3a68415d4202042c39de35074192808a90d74dcf7a1bc9085e360167bb57629
               imagePullPolicy: IfNotPresent
               args:
                 - sync-push
@@ -647,7 +647,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   host: home-assistant-http
   trafficPolicy:
@@ -677,7 +677,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
   annotations:
     k8s-sidecar-target-directory: /tmp/dashboards/home-assistant
 spec:
@@ -702,7 +702,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   parentRefs:
     - name: shared-platform-gateway
@@ -737,7 +737,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   parentRefs:
     - name: shared-platform-gateway
@@ -771,7 +771,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   parentRefs:
     - name: shared-platform-gateway
@@ -806,7 +806,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   parentRefs:
     - name: shared-platform-gateway
@@ -840,7 +840,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   groups:
     - name: home-assistant.rules
@@ -998,7 +998,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.16
+    helm.sh/chart: home-assistant-0.0.17
 spec:
   selector:
     matchLabels:

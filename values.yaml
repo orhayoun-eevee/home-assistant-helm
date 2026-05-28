@@ -174,7 +174,7 @@ application:
         git-sync-init:
           image:
             repository: ghcr.io/runlix/git
-            tag: "0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04"
+            tag: "0.1.0-stable@sha256:b3a68415d4202042c39de35074192808a90d74dcf7a1bc9085e360167bb57629"
             pullPolicy: IfNotPresent
           args:
             - pull-init
@@ -231,7 +231,7 @@ application:
           enabled: true
           image:
             repository: ghcr.io/runlix/home-assistant
-            tag: "2026.4.0-stable@sha256:aaf1ebf40f4e6f68e7d9837f9fd6d0854e32a07a4c429de08b2f15e21e35bbff"
+            tag: "2026.4.0-stable@sha256:2c07c794d0d04f1b2afa9b7518b454033ee6af6b79f2790787723c8535c44d81"
             pullPolicy: Always
           ports:
             - name: http
@@ -315,7 +315,7 @@ application:
           enabled: true
           image:
             repository: ghcr.io/runlix/home-assistant-configurator
-            tag: "0.5.2-stable@sha256:151eca85c6d243dd999f01839b58e234ccf8b4d26c415c8c41f4d2ae38477f02"
+            tag: "0.5.2-stable@sha256:b90bc7013e088a118b5e6fda0abbaa81f4ab5cacab8039c0151d7ef6440df6a3"
             pullPolicy: Always
           ports:
             - name: configurator
@@ -429,7 +429,7 @@ application:
           enabled: false
           image:
             repository: ghcr.io/runlix/git
-            tag: "0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04"
+            tag: "0.1.0-stable@sha256:b3a68415d4202042c39de35074192808a90d74dcf7a1bc9085e360167bb57629"
             pullPolicy: IfNotPresent
           args:
             - pull-init
@@ -721,7 +721,7 @@ sync:
           enabled: true
           image:
             repository: ghcr.io/runlix/git
-            tag: "0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04"
+            tag: "0.1.0-stable@sha256:b3a68415d4202042c39de35074192808a90d74dcf7a1bc9085e360167bb57629"
             pullPolicy: IfNotPresent
           args:
             - sync-push
