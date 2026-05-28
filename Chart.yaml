@@ -2,7 +2,7 @@ apiVersion: v2
 name: home-assistant
 description: A Helm chart for Home Assistant using lib-chart
 type: application
-version: 0.0.16
+version: 0.0.17
 appVersion: "2026.4.0"
 keywords:
   - home-assistant
