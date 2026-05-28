@@ -174,7 +174,7 @@ application:
         git-sync-init:
           image:
             repository: ghcr.io/runlix/git
-            tag: "0.1.0-stable@sha256:5c1997f8a59433de06445ae19cfa3168573b144644890028962cf3f7105b2b62"
+            tag: "0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04"
             pullPolicy: IfNotPresent
           args:
             - pull-init
@@ -231,7 +231,7 @@ application:
           enabled: true
           image:
             repository: ghcr.io/runlix/home-assistant
-            tag: "2026.2.3-stable@sha256:8442e483a783d293d00314db8163d83722bb9659e09ae80e5051aa681ed078e0"
+            tag: "2026.4.0-stable@sha256:aaf1ebf40f4e6f68e7d9837f9fd6d0854e32a07a4c429de08b2f15e21e35bbff"
             pullPolicy: Always
           ports:
             - name: http
@@ -315,7 +315,7 @@ application:
           enabled: true
           image:
             repository: ghcr.io/runlix/home-assistant-configurator
-            tag: "0.5.2-stable@sha256:3e59684488ec7f13330de4a866ec30e22c3f886389f21c398e3b2d5b1ea0da7b"
+            tag: "0.5.2-stable@sha256:151eca85c6d243dd999f01839b58e234ccf8b4d26c415c8c41f4d2ae38477f02"
             pullPolicy: Always
           ports:
             - name: configurator
@@ -378,7 +378,7 @@ application:
           enabled: true
           image:
             repository: ghcr.io/home-assistant-libs/python-matter-server
-            tag: "stable@sha256:3f1687469f5ecf8f8f3016ba00f154722fefdb1108f6f789734763f2be4ca1e3"
+            tag: "stable@sha256:170aa093ce91c76cde4cc390918307590f0f5558fcec93f913af3cb019e6562a"
             pullPolicy: Always
           ports:
             - name: matter
@@ -429,7 +429,7 @@ application:
           enabled: false
           image:
             repository: ghcr.io/runlix/git
-            tag: "0.1.0-stable@sha256:5c1997f8a59433de06445ae19cfa3168573b144644890028962cf3f7105b2b62"
+            tag: "0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04"
             pullPolicy: IfNotPresent
           args:
             - pull-init
@@ -721,7 +721,7 @@ sync:
           enabled: true
           image:
             repository: ghcr.io/runlix/git
-            tag: "0.1.0-stable@sha256:5c1997f8a59433de06445ae19cfa3168573b144644890028962cf3f7105b2b62"
+            tag: "0.1.0-stable@sha256:cf13c4af02e2c133a15a3d6746fc7890f9171bc749f7931253b34ec4727caa04"
             pullPolicy: IfNotPresent
           args:
             - sync-push
