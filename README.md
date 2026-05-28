@@ -1,6 +1,6 @@
 # Home Assistant Helm Chart
 
-This chart deploys Home Assistant using the shared dependency `lib-chart` (`0.0.14`) in two contexts:
+This chart deploys Home Assistant using the shared dependency `lib-chart` (`0.0.15`) in two contexts:
 - `application` (Deployment workload)
 - `sync` (CronJob workload for config sync)
 
@@ -12,7 +12,7 @@ helm install home-assistant . --namespace home-automation
 
 ## Dependencies
 
-- `application` alias of `lib-chart` (`0.0.14`) from `oci://ghcr.io/orhayoun-eevee`
+- `application` alias of `lib-chart` (`0.0.15`) from `oci://ghcr.io/orhayoun-eevee`
 - `sync` context rendered via the same library templates with `sync.*` values
 
 Update dependencies from chart root:
