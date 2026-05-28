@@ -11,8 +11,8 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: homeassistant-config-sync
     app.kubernetes.io/part-of: home-automation
-    app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.15
+    app.kubernetes.io/version: 2026.4.0
+    helm.sh/chart: home-assistant-0.0.16
 spec:
   podSelector:
     matchLabels:
@@ -58,7 +58,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.15
+    helm.sh/chart: home-assistant-0.0.16
   annotations:
     app.kubernetes.io/managed-by: argocd
     description: Home Assistant service account
@@ -77,8 +77,8 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: homeassistant-config-sync
     app.kubernetes.io/part-of: home-automation
-    app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.15
+    app.kubernetes.io/version: 2026.4.0
+    helm.sh/chart: home-assistant-0.0.16
 automountServiceAccountToken: false
 ---
 # Source: home-assistant/templates/all.yaml
@@ -94,7 +94,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.15
+    helm.sh/chart: home-assistant-0.0.16
   annotations:
     helm.sh/resource-policy: keep
 spec:
@@ -118,7 +118,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.15
+    helm.sh/chart: home-assistant-0.0.16
   annotations:
     description: Home Assistant configurator service
 spec:
@@ -145,7 +145,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.15
+    helm.sh/chart: home-assistant-0.0.16
   annotations:
     description: Home Assistant HTTP service
 spec:
@@ -172,7 +172,7 @@ metadata:
     app.kubernetes.io/name: home-assistant
     app.kubernetes.io/part-of: home-automation
     app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.15
+    helm.sh/chart: home-assistant-0.0.16
 spec:
   replicas: 1
   revisionHistoryLimit: 10
@@ -191,7 +191,7 @@ spec:
         app.kubernetes.io/name: home-assistant
         app.kubernetes.io/part-of: home-automation
         app.kubernetes.io/version: 2026.2.3
-        helm.sh/chart: home-assistant-0.0.15
+        helm.sh/chart: home-assistant-0.0.16
         logging.kubernetes.io/component: home-automation
         logging.kubernetes.io/service: home-assistant
     spec:
@@ -490,8 +490,8 @@ metadata:
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/name: homeassistant-config-sync
     app.kubernetes.io/part-of: home-automation
-    app.kubernetes.io/version: 2026.2.3
-    helm.sh/chart: home-assistant-0.0.15
+    app.kubernetes.io/version: 2026.4.0
+    helm.sh/chart: home-assistant-0.0.16
 spec:
   schedule: "30 2 * * *"
   concurrencyPolicy: Forbid
@@ -511,8 +511,8 @@ spec:
             app.kubernetes.io/managed-by: Helm
             app.kubernetes.io/name: homeassistant-config-sync
             app.kubernetes.io/part-of: home-automation
-            app.kubernetes.io/version: 2026.2.3
-            helm.sh/chart: home-assistant-0.0.15
+            app.kubernetes.io/version: 2026.4.0
+            helm.sh/chart: home-assistant-0.0.16
         spec:
           
           terminationGracePeriodSeconds: 30
