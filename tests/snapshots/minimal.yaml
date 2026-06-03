@@ -326,7 +326,7 @@ spec:
             seccompProfile:
               type: RuntimeDefault
         - name: home-assistant
-          image: ghcr.io/runlix/home-assistant:2026.4.0-stable@sha256:2c07c794d0d04f1b2afa9b7518b454033ee6af6b79f2790787723c8535c44d81
+          image: ghcr.io/runlix/home-assistant:2026.4.0-stable@sha256:c5afb0393e2101a90ee25f3657119051a7aab6a8d3f7eb2f15ab002cff07aab9
           imagePullPolicy: Always
           ports:
             - name: http
